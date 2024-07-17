@@ -14,6 +14,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
+import { useEffect, useState } from "react";
+import Loading from "../utilities/loadng"; // Ensure the path is correct
 
 const images = [
   { src: "/1720735025373.png", alt: "Character Matching" },
@@ -23,9 +25,23 @@ const images = [
   { src: "/1720735025429.png", alt: "Smart Maheshwari Matrimonial App" },
 ];
 
-export default function HomePage() {
+const HomePage: React.FC = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000); // Change this duration to your loading time
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
-    <div className="pt-[70px] min-h-screen">
+    <div className="pt-[70px] min-h-screen border-wrapper">
       <div className="min-h-screen bg-cover bg-center bg-fixed relative" style={{ backgroundImage: "url('/mainbg.jpg')" }}>
         <div className="absolute inset-0 bg-black bg-opacity-60"></div>
         <div className="min-h-screen flex flex-col items-center justify-center text-center text-white relative z-10 px-4">
@@ -55,7 +71,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="flex flex-col items-center p-6 my-10  bg-gray-100">
+      <div className="flex flex-col items-center p-6 my-10 bg-gray-100">
         <div className="text-center mb-10">
           <h2 className="text-4xl font-bold text-gray-800">
             Find Your <span className="text-pink-500">Special</span> Someone
@@ -78,7 +94,7 @@ export default function HomePage() {
 
       <div className="min-h-screen bg-gray-100 py-12">
         <header className="bg-green-500 text-white text-center py-6 mb-8">
-          <h1 className="text-3xl font-bold">Our Astonshing Features</h1>
+          <h1 className="text-3xl font-bold">Discover Our Standout Features</h1>
         </header>
         <section className="carousel mx-auto w-11/12 md:w-8/12">
           <Swiper
@@ -176,3 +192,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+export default HomePage;

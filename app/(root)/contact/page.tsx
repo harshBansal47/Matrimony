@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, ChangeEvent, FormEvent } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface FormData {
     name: string;
@@ -45,17 +47,58 @@ export default function ContactUs() {
         return Object.keys(formErrors).length === 0;
     };
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        
         if (validateForm()) {
-            setIsSubmitted(true);
-            console.log("Form data:", JSON.stringify(formData));
-            // Handle JSON data storage here
+            try {
+                const formPayload = {
+                    sender: {
+                        name: formData.name,
+                        email: formData.email,
+                    },
+                    recipient: [
+                        {
+                            name: "Recipient Name", // Replace with actual recipient name or input
+                            email: "recipient@example.com", // Replace with actual recipient email or input
+                        },
+                    ],
+                    subject: "New Application Submission", // Define a subject for the email
+                    body: `
+                        Name: ${formData.name}\n
+                        Email: ${formData.email}\n
+                        Mobile: ${formData.mobile}\n
+                        Biodata: ${formData.biodata ? formData.biodata.name : "No biodata provided."}
+                    `,
+                };
+    
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formPayload),
+                });
+    
+                if (response.ok) {
+                    setIsSubmitted(true);
+                    toast.success("Form submitted successfully!");
+                } else {
+                    const errorData = await response.json();
+                    setErrors({ biodata: errorData.error });
+                    toast.error("Error sending email");
+                }
+            } catch (error) {
+                console.error('Error submitting form', error);
+                setErrors({ biodata: 'Error submitting form' });
+                toast.error("Error submitting form");
+            }
         }
     };
+    
 
     return (
-        <div className="min-h-screen flex justify-center pt-40 bg-pink-100 relative pattern">
+        <div className="min-h-screen flex justify-center pt-32 mt-20 bg-pink-100 relative pattern">
             <div className="absolute inset-0 bg-gradient-to-b from-pink-50 to-pink-100 opacity-75"></div>
             <div className="w-full flex flex-col gap-4 z-10">
                 <h2 className="text-4xl font-bold mb-6 text-center text-gray-600 px-10">We've been waiting for you.</h2>
@@ -113,6 +156,7 @@ export default function ContactUs() {
                         </div>
                         <button type="submit" className="bg-pink-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-pink-600">Submit</button>
                     </form>
+                    <ToastContainer position="bottom-center" />
                     {isSubmitted && <div className="text-green-500 mt-4">Form submitted successfully!</div>}
                 </div>
             </div>
